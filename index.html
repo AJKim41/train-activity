@@ -12,6 +12,10 @@
       crossorigin="anonymous"
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
+    <script>
+      moment.locale();
+    </script>
     <style>
       html,
       body {
@@ -61,8 +65,8 @@
                     id="train-input"
                     aria-describedby="trainHelp"
                     placeholder=""
+                    required
                   />
-                  <small id="" class="form-text text-muted"></small>
                 </div>
                 <div class="form-group">
                   <label for="destination-input">Destination</label>
@@ -72,8 +76,8 @@
                     id="destination-input"
                     aria-describedby="destinationHelp"
                     placeholder=""
+                    required
                   />
-                  <small id="" class="form-text text-muted"></small>
                 </div>
                 <div class="form-group">
                   <label for="train-time-input"
@@ -85,8 +89,8 @@
                     id="train-time-input"
                     aria-describedby="trainTimeHelp"
                     placeholder=""
+                    required
                   />
-                  <small id="" class="form-text text-muted"></small>
                 </div>
                 <div class="form-group">
                   <label for="frequency-input">Frequency</label>
@@ -96,8 +100,8 @@
                     id="frequency-input"
                     aria-describedby="frequencyHelp"
                     placeholder=""
+                    required
                   />
-                  <small id="" class="form-text text-muted"></small>
                 </div>
                 <button id="save" type="submit" class="btn btn-primary">
                   Submit
@@ -145,16 +149,32 @@
             firstTrainTime: firstTrainTime,
             frequency: frequency
           });
-
           database.ref().on("child_added", snapshot => {
             let data = snapshot.val();
-            var nextArrival = "blank";
-            var minutesAway = 99;
+            var currentTime = moment();
+            var updatedCurrentTime = moment().subtract(1, "years");
+            var firstTrain = data.firstTrainTime;
+            var frequencyTime = data.frequency;
+            var firstTrainT = moment(firstTrain, "HH:mm").subtract(1, "years");
+            var timeDifference = moment().diff(moment(firstTrainT), "minutes");
+            var timeLeft = timeDifference % +frequencyTime;
+            var minutesAway = +frequencyTime - timeLeft;
+            var nextArrival = moment()
+              .add(minutesAway, "minutes")
+              .format("hh:mm A");
+            var beforeCalc = moment(firstTrainT).diff(
+              updatedCurrentTime,
+              "minutes"
+            );
+            var beforeMinutes = Math.ceil(
+              moment.duration(beforeCalc).asMinutes()
+            );
+
             let html = `
             <tr>
                 <th scope="row">${data.trainName}</th>
                 <td>${data.destination}</td>
-                <td>${data.frequency}</td>
+                <td>${frequencyTime}</td>
                 <td>${nextArrival}</td>
                 <td>${minutesAway}</td>
               </tr>`;
