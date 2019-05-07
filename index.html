@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Train Activity</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="jumbotron">
+            <h1 class="text-center">
+              Train Scheduler
+            </h1>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <table class="table table-dark">
+            <thead>
+              <tr>
+                <th scope="col">Train Name</th>
+                <th scope="col">Destination</th>
+                <th scope="col">Frequency</th>
+                <th scope="col">Next Arrival</th>
+                <th scope="col">Minutes Away</th>
+              </tr>
+            </thead>
+            <tbody id="train-section"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Special title treatment</h5>
+              <form>
+                <div class="form-group">
+                  <label for="train-input">Train Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="train-input"
+                    aria-describedby="trainHelp"
+                    placeholder=""
+                  />
+                  <small id="" class="form-text text-muted"></small>
+                </div>
+                <div class="form-group">
+                  <label for="destination-input">Destination</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="destination-input"
+                    aria-describedby="destinationHelp"
+                    placeholder=""
+                  />
+                  <small id="" class="form-text text-muted"></small>
+                </div>
+                <div class="form-group">
+                  <label for="train-time-input"
+                    >First Train Time (HH:mm - military time)</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="train-time-input"
+                    aria-describedby="trainTimeHelp"
+                    placeholder=""
+                  />
+                  <small id="" class="form-text text-muted"></small>
+                </div>
+                <div class="form-group">
+                  <label for="frequency-input">Frequency</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="frequency-input"
+                    aria-describedby="frequencyHelp"
+                    placeholder=""
+                  />
+                  <small id="" class="form-text text-muted"></small>
+                </div>
+                <button id="save" type="submit" class="btn btn-primary">
+                  Submit
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      $(document).ready(function() {
+        var config = {
+          apiKey: "AIzaSyBGAUNHjABpsWWJ-V9ok9r3t0OAKU1MZQU",
+          authDomain: "train-activity-harcam.firebaseapp.com",
+          databaseURL: "https://train-activity-harcam.firebaseio.com",
+          projectId: "train-activity-harcam",
+          storageBucket: "train-activity-harcam.appspot.com",
+          messagingSenderId: "132850691652"
+        };
+        firebase.initializeApp(config);
+
+        let database = firebase.database();
+
+        $("#save").on("click", event => {
+          event.preventDefault();
+          let trainName = $("#train-input")
+            .val()
+            .trim();
+          let destination = $("#destination-input")
+            .val()
+            .trim();
+          let firstTrainTime = $("#train-time-input")
+            .val()
+            .trim();
+          let frequency = $("#frequency-input")
+            .val()
+            .trim();
+
+          database.ref().push({
+            trainName: trainName,
+            destination: destination,
+            firstTrainTime: firstTrainTime,
+            frequency: frequency
+          });
+
+          database.ref().on("child_added", snapshot => {
+            let data = snapshot.val();
+            var nextArrival = "blank";
+            var minutesAway = 99;
+            let html = `
+            <tr>
+                <th scope="row">${data.trainName}</th>
+                <td>${data.destination}</td>
+                <td>${data.frequency}</td>
+                <td>${nextArrival}</td>
+                <td>${minutesAway}</td>
+              </tr>`;
+
+            $("#train-section").append(html);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
