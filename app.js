@@ -35,8 +35,6 @@ $(document).ready(function() {
     });
     database.ref().on("child_added", snapshot => {
       let data = snapshot.val();
-      var currentTime = moment();
-      var updatedCurrentTime = moment().subtract(1, "years");
       var firstTrain = data.firstTrainTime;
       var frequencyTime = data.frequency;
       var firstTrainT = moment(firstTrain, "HH:mm").subtract(1, "years");
@@ -46,8 +44,6 @@ $(document).ready(function() {
       var nextArrival = moment()
         .add(minutesAway, "minutes")
         .format("hh:mm A");
-      var beforeCalc = moment(firstTrainT).diff(updatedCurrentTime, "minutes");
-      var beforeMinutes = Math.ceil(moment.duration(beforeCalc).asMinutes());
 
       let html = `
             <tr>
