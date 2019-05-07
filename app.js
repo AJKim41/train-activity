@@ -33,19 +33,20 @@ $(document).ready(function() {
       firstTrainTime: firstTrainTime,
       frequency: frequency
     });
-    database.ref().on("child_added", snapshot => {
-      let data = snapshot.val();
-      var firstTrain = data.firstTrainTime;
-      var frequencyTime = data.frequency;
-      var firstTrainT = moment(firstTrain, "HH:mm").subtract(1, "years");
-      var timeDifference = moment().diff(moment(firstTrainT), "minutes");
-      var timeLeft = timeDifference % +frequencyTime;
-      var minutesAway = +frequencyTime - timeLeft;
-      var nextArrival = moment()
-        .add(minutesAway, "minutes")
-        .format("hh:mm A");
+  });
+  database.ref().on("child_added", snapshot => {
+    let data = snapshot.val();
+    var firstTrain = data.firstTrainTime;
+    var frequencyTime = data.frequency;
+    var firstTrainT = moment(firstTrain, "HH:mm").subtract(1, "years");
+    var timeDifference = moment().diff(moment(firstTrainT), "minutes");
+    var timeLeft = timeDifference % +frequencyTime;
+    var minutesAway = +frequencyTime - timeLeft;
+    var nextArrival = moment()
+      .add(minutesAway, "minutes")
+      .format("hh:mm A");
 
-      let html = `
+    let html = `
             <tr>
                 <th scope="row">${data.trainName}</th>
                 <td>${data.destination}</td>
@@ -54,7 +55,6 @@ $(document).ready(function() {
                 <td>${minutesAway}</td>
               </tr>`;
 
-      $("#train-section").append(html);
-    });
+    $("#train-section").append(html);
   });
 });
